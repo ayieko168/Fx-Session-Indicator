@@ -1,14 +1,14 @@
 from tkinter import *
 import threading
 from time import sleep
-import Balloon
+import datetime
 
 SIZE = "630x270+100+200"
 
 root = Tk()
 root.geometry(SIZE)
 root.title("FOREX TRADING SESSIONS WORLDWIDE")
-root.resizable(0,0)
+# root.resizable(0,0)
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 
@@ -16,7 +16,7 @@ root.grid_columnconfigure(0, weight=1)
 fm1 = Frame(root)
 topTimeCanvas = Canvas(fm1, bg="green", height=30)
 
-
+# Draw gard lines
 for x in range(1, 24):
 
     x1 = 0 + (x*26.25)
@@ -48,7 +48,7 @@ fm1.pack(fill=X)
 
 # The Body 
 fm2 = Frame(root)
-body = Canvas(fm2, bg="black")
+body = Canvas(fm2, bg="black", height=200)
 
 _DISABLED = "#f2f3f5"
 _ACTIVE = "#00c020"
@@ -72,10 +72,15 @@ body.create_text(483.75, 145, text="NewYork  {} local time".format("55 am"))
 
 CurrentTimeLine = body.create_line(x1L, y1L, x2L, y2L, fill=_ACTIVE)
 
+# Returns the Begins In or The Ends In value
+def calcEndStart():
+
+    pass
+
+
 # Mouse position capture
 def motion(event):
     global mousex, mousey
-
     mousex, mousey = event.x, event.y
     # print('{}, {}'.format(mousex, mousey))
 
@@ -84,16 +89,27 @@ def animate():
     global x1L, x2L
     x1Ll, _, x2Ll, _ = body.coords(CurrentTimeLine)
     while 1:
-        sleep(0.1)
+        sleep(0.25)
+
+        time = datetime.datetime.now().time()
+        Hr = time.hour
+        Min = time.minute
+        Sec = time.second        
+        TimeInSeconds = (Hr*3600)+(Min*60)+(Sec)
+
+        print(TimeInSeconds)
 
         # move the crrent time line
-        if x2Ll < 630:
-            x1Ll = x1Ll + 21
-            x2Ll = x2Ll + 21
-            body.coords(CurrentTimeLine, x1Ll, 0.0, x2Ll, 270)
-        else:
-            x1Ll = 0
-            x2Ll = 0
+            # if x2Ll < 630:
+            #     x1Ll = x1Ll + 26.25
+            #     x2Ll = x2Ll + 26.25
+            #     body.coords(CurrentTimeLine, x1Ll, 0.0, x2Ll, 270)
+            # else:
+            #     x1Ll = 0
+            #     x2Ll = 0
+        x1Ll = (TimeInSeconds * 26.25) / 3600
+        x2Ll = (TimeInSeconds * 26.25) / 3600
+        body.coords(CurrentTimeLine, x1Ll, 0.0, x2Ll, 270)
 
         # light up active sessions
         # Sydney
@@ -117,19 +133,37 @@ def animate():
         else:
             body.itemconfig(newYorkBar, fill=_DISABLED)
             
-        # Balloon Widget
+        # Status Bar Widget Update
         # print('{}, {}'.format(mousex, mousey))
         if ((mousex >= 0) and (mousex <= 236.25)) and ((mousey >= 10) and (mousey <= 30)):
-            print("Sydney")
+            # print("Sydney")
+            if body.itemcget(sydneyBar, "fill") == _DISABLED:
+                label1.config(text="Sydney Session; Begins in {} ()".format("5hrs"))
+            else:
+                label1.config(text="Sydney Session; Ends in {} ()".format("5hrs"))
+            
         if ((mousex >= 78.75) and (mousex <= 315)) and ((mousey >= 50) and (mousey <= 80)):
-            print("Tokyo")
+            # print("Tokyo")
+            if body.itemcget(tokyoBar, "fill") == _DISABLED:
+                label1.config(text="Tokyo Session; Begins in {} ()".format("5hrs"))
+            else:
+                label1.config(text="Tokyo Session; Ends in {} ()".format("5hrs"))
+
         if ((mousex >= 262.5) and (mousex <= 498.75)) and ((mousey >= 90) and (mousey <= 120)):
-            print("London")
+            # print("London")
+            if body.itemcget(londonBar, "fill") == _DISABLED:
+                label1.config(text="London Session; Begins in {} ()".format("5hrs"))
+            else:
+                label1.config(text="London Session; Ends in {} ()".format("5hrs"))
+
         if ((mousex >= 393.75) and (mousex <= 630)) and ((mousey >= 130) and (mousey <= 160)):
-            print("NewYork")
+            # print("NewYork")
+            if body.itemcget(newYorkBar, "fill") == _DISABLED:
+                label1.config(text="NewYork Session; Begins in {} ()".format("5hrs"))
+            else:
+                label1.config(text="NewYork Session; Ends in {} ()".format("5hrs"))
+
         
-
-
 
 th1 = threading.Thread(target=animate)
 th1.start()
@@ -137,6 +171,17 @@ th1.start()
 
 body.pack(fill=X)
 fm2.pack(fill=X)
+
+fm3 = Frame(root)
+statusBar = Canvas(fm3, bg="grey", relief=GROOVE, bd=3)
+
+status = "Welcome"
+label1 = Label(statusBar, text=status, anchor=W, font="Purisa 12", bg="grey")
+label1.pack(anchor="w", padx=10, pady=5)
+root.after(5000, lambda:label1.config(text=""))
+
+statusBar.pack(fill=X)
+fm3.pack(fill=X)
 
 root.bind('<Motion>', motion)
 root.mainloop()
