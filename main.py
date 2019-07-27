@@ -25,12 +25,13 @@ for x in range(1, 24):
     y2 = 20
     
     # Draw the graduation lines
-    topTimeCanvas.create_line(x1, y1, x2, y2)
+    topTimeCanvas.create_line(x1, y1, x2, y2) # Hour Marks
+    # topTimeCanvas.create_line((x*13.125), y1, (x*13.125), y2+5, fill="red") # Half Hour Marks
 
     # format the graduation text and digits to show 12hr system
     if x < 12:
         if x%2 == 1:
-            topTimeCanvas.create_text(x1, y2-5, text = "{}am".format(x))
+            topTimeCanvas.create_text(x1, y2-5, text = "{}am".format(x))   
         else:
             pass
     else:
@@ -59,24 +60,69 @@ y2L = 270
 mousex = 0
 mousey = 0
 
+time = datetime.datetime.now().time()
+Hr = time.hour
+Min = time.minute
+Sec = time.second        
+TimeInSeconds = (Hr*3600)+(Min*60)+(Sec)
+
+localSydneyTime = TimeInSeconds 
 
 sydneyBar = body.create_rectangle(0, 10, 236.25, 40, fill=_DISABLED)
 tokyoBar = body.create_rectangle(78.75, 50, 315, 80, fill=_DISABLED)
 londonBar = body.create_rectangle(262.5, 90, 498.75, 120, fill=_DISABLED)
 newYorkBar = body.create_rectangle(393.75, 130, 630, 160, fill=_DISABLED)
 
-body.create_text(90, 25, text="Sydney  {} local time".format("55 am"))
+body.create_text(90, 25, text="Sydney  {} local time".format())
 body.create_text(168.75, 65, text="Tokyo  {} local time".format("55 am"))
 body.create_text(352.5, 105, text="London  {} local time".format("55 am"))
 body.create_text(483.75, 145, text="NewYork  {} local time".format("55 am"))
 
 CurrentTimeLine = body.create_line(x1L, y1L, x2L, y2L, fill=_ACTIVE)
 
+def convertToStd(TSec):
+
+    hrs = int(TSec / 3600)
+    mins = int(float(".".join(["0", str(TSec / 3600).split(".")[1]])) * 60)
+    sec = 60 - (datetime.datetime.now().time().second)
+
+    return (hrs, mins, sec)
+
+
 # Returns the Begins In or The Ends In value
-def calcEndStart():
+def calcEndStart(session):
 
-    pass
-
+    global TimeInSeconds
+    
+    if session.lower() == "sydney":
+        if body.itemcget(sydneyBar, "fill") == _DISABLED:
+            startsTime = (86400 - TimeInSeconds) + (0 * 3600)
+            return convertToStd(startsTime)
+        else:
+            endTime= (9*3600) - TimeInSeconds
+            return convertToStd(endTime)          
+    elif session.lower() == "tokyo":
+        if body.itemcget(tokyoBar, "fill") == _DISABLED:
+            startsTime = (86400 - TimeInSeconds) + (3 * 3600)
+            return convertToStd(startsTime)
+        else:
+            endTime= (12*3600) - TimeInSeconds
+            return convertToStd(endTime)
+    elif session.lower() == "london":
+        if body.itemcget(londonBar, "fill") == _DISABLED:
+            startsTime = (86400 - TimeInSeconds) + (10 * 3600)
+            return convertToStd(startsTime)
+        else:
+            endTime= (19*3600) - TimeInSeconds
+            return convertToStd(endTime)
+    elif session.lower() == "newyork":
+        if body.itemcget(newYorkBar, "fill") == _DISABLED:
+            startsTime = (86400 - TimeInSeconds) + (15 * 3600)
+            return convertToStd(startsTime)
+        else:
+            endTime= (24*3600) - TimeInSeconds
+            return convertToStd(endTime)
+    
 
 # Mouse position capture
 def motion(event):
@@ -86,7 +132,7 @@ def motion(event):
 
 def animate():
     
-    global x1L, x2L
+    global x1L, x2L, TimeInSeconds
     x1Ll, _, x2Ll, _ = body.coords(CurrentTimeLine)
     while 1:
         sleep(0.25)
@@ -96,8 +142,6 @@ def animate():
         Min = time.minute
         Sec = time.second        
         TimeInSeconds = (Hr*3600)+(Min*60)+(Sec)
-
-        print(TimeInSeconds)
 
         # move the crrent time line
             # if x2Ll < 630:
@@ -137,31 +181,35 @@ def animate():
         # print('{}, {}'.format(mousex, mousey))
         if ((mousex >= 0) and (mousex <= 236.25)) and ((mousey >= 10) and (mousey <= 30)):
             # print("Sydney")
+            RemTime = calcEndStart("sydney")
             if body.itemcget(sydneyBar, "fill") == _DISABLED:
-                label1.config(text="Sydney Session; Begins in {} ()".format("5hrs"))
+                label1.config(text="Sydney Session; Begins in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
             else:
-                label1.config(text="Sydney Session; Ends in {} ()".format("5hrs"))
+                label1.config(text="Sydney Session; Ends in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
             
         if ((mousex >= 78.75) and (mousex <= 315)) and ((mousey >= 50) and (mousey <= 80)):
             # print("Tokyo")
+            RemTime = calcEndStart("tokyo")
             if body.itemcget(tokyoBar, "fill") == _DISABLED:
-                label1.config(text="Tokyo Session; Begins in {} ()".format("5hrs"))
+                label1.config(text="Tokyo Session; Begins in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
             else:
-                label1.config(text="Tokyo Session; Ends in {} ()".format("5hrs"))
+                label1.config(text="Tokyo Session; Ends in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
 
         if ((mousex >= 262.5) and (mousex <= 498.75)) and ((mousey >= 90) and (mousey <= 120)):
             # print("London")
+            RemTime = calcEndStart("London")
             if body.itemcget(londonBar, "fill") == _DISABLED:
-                label1.config(text="London Session; Begins in {} ()".format("5hrs"))
+                label1.config(text="London Session; Begins in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
             else:
-                label1.config(text="London Session; Ends in {} ()".format("5hrs"))
+                label1.config(text="London Session; Ends in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
 
         if ((mousex >= 393.75) and (mousex <= 630)) and ((mousey >= 130) and (mousey <= 160)):
             # print("NewYork")
+            RemTime = calcEndStart("NewYork")
             if body.itemcget(newYorkBar, "fill") == _DISABLED:
-                label1.config(text="NewYork Session; Begins in {} ()".format("5hrs"))
+                label1.config(text="NewYork Session; Begins in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
             else:
-                label1.config(text="NewYork Session; Ends in {} ()".format("5hrs"))
+                label1.config(text="NewYork Session; Ends in {}Hrs {}Mins {}Sec ()".format(RemTime[0], RemTime[1], RemTime[2]))
 
         
 
