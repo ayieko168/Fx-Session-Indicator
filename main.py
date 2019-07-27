@@ -73,7 +73,7 @@ tokyoBar = body.create_rectangle(78.75, 50, 315, 80, fill=_DISABLED)
 londonBar = body.create_rectangle(262.5, 90, 498.75, 120, fill=_DISABLED)
 newYorkBar = body.create_rectangle(393.75, 130, 630, 160, fill=_DISABLED)
 
-body.create_text(90, 25, text="Sydney  {} local time".format())
+body.create_text(90, 25, text="Sydney  {} local time".format(""))
 body.create_text(168.75, 65, text="Tokyo  {} local time".format("55 am"))
 body.create_text(352.5, 105, text="London  {} local time".format("55 am"))
 body.create_text(483.75, 145, text="NewYork  {} local time".format("55 am"))
